@@ -60,7 +60,7 @@ services:
     depends_on:
       - clamav-rest-0
     ports:
-      - "9906:9906/tcp"
+      - "9907:9906/tcp"
     networks:
       - proxy
 
