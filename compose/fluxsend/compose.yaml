@@ -1,6 +1,6 @@
 services:
   frontend:
-    image: bobaklabs/fluxsend-frontend:v1.8.4
+    image: bobaklabs/fluxsend-frontend:v1.8.7
     container_name: frontend
     restart: unless-stopped
     depends_on:
@@ -48,7 +48,7 @@ services:
       - backend
 
   backend:
-    image: bobaklabs/fluxsend-backend:test-latest
+    image: bobaklabs/fluxsend-backend:v1.8.7
     container_name: backend
     restart: unless-stopped
     depends_on:
