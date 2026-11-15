@@ -1,0 +1,23 @@
+# The ClamAV stack from edge-server-1, managed as the Compose project "clamav".
+#
+# This file belongs in the infrastructure repository Recon deploys from. Change
+# the repository URL/ref, and merge the stack entry into an existing document if
+# the host already manages other stacks.
+version: 1
+
+repository:
+  url: git@github.com:example/infra.git
+  ref: main
+
+stacks:
+  clamav:
+    compose: compose/clamav/compose.yaml
+    secrets:
+      # Traefik's Basic Auth entry is interpolated into a container label. It is
+      # decrypted only for this stack's apply and is never stored in this file.
+      env:
+        - secrets/clamav.sops.env
+    health:
+      # clamav-rest has a 210s health-check start period and can take another
+      # interval to report ready after that. Recon must outlast that cold start.
+      timeout: 6m
