@@ -1,0 +1,9 @@
+# Recipients for the ClamAV secret:
+#   age12cp... is the authoring key available on this workstation.
+#   age186... is the Recon host key at /etc/recon/age.txt on edge-server-1.
+#
+# If the stack moves to another host, add that host's public key and run
+# `sops updatekeys -y secrets/clamav.sops.env`.
+creation_rules:
+  - path_regex: (^|/)secrets/.*\.sops\.env$
+    age: age12cpv6rqkwzl36nc3swnr7zkecmfhwhcgyraa409k5tq5zyjh7q2ssjfhpg,age186gtl9uclwhw82mjn84y0ral7dnv403wc4nl73c4v76usftqcdwsu7zlvm
