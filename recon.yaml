@@ -10,7 +10,7 @@ repository:
   ref: main
 
 stacks:
-  clamav:
+  clamav-0:
     compose: compose/clamav/compose.yaml
     secrets:
       # Traefik's Basic Auth entry is interpolated into a container label. It is
