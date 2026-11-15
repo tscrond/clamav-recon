@@ -6,7 +6,7 @@
 version: 1
 
 repository:
-  url: git@github.com:example/infra.git
+  url: git@github.com:tscrond/clamav-recon.git
   ref: main
 
 stacks:
