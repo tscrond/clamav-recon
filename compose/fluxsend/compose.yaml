@@ -13,7 +13,7 @@ services:
       - NGINX_BACKEND_PORT=3000
       - NGINX_BACKEND_API_PORT=8091
     healthcheck:
-      test: ["curl", "http://localhost:8000"]
+      test: ["CMD", "curl", "http://localhost:8000"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -63,7 +63,7 @@ services:
     command: ["./fluxsend", "--admin-server", "--password-auth"]
     # wget --spider --server-response -O- http://localhost:9464/metrics
     healthcheck:
-      test: ["wget","--spider","--server-response","-O-","http://localhost:9464/metrics"]
+      test: ["CMD", "wget","--spider","--server-response","-O-","http://localhost:9464/metrics"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -146,22 +146,22 @@ services:
       - "traefik.http.routers.fluxsend-s3.tls.certresolver=le"
       - "traefik.http.routers.fluxsend-s3.service=fluxsend-s3"
       - "traefik.http.services.fluxsend-s3.loadbalancer.server.port=9000"
-  landing:
-    image: bobaklabs/fluxsend-web:main
-    ports:
-      - "1212:80/tcp"
-    networks:
-      - proxy
-      - backend
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=proxy"
-      - "traefik.http.routers.fluxsend-www.rule=Host(`www.fluxsend.app`)"
-      - "traefik.http.routers.fluxsend-www.entrypoints=websecure"
-      - "traefik.http.routers.fluxsend-www.tls=true"
-      - "traefik.http.routers.fluxsend-www.tls.certresolver=le"
-      - "traefik.http.routers.fluxsend-www.service=fluxsend-www"
-      - "traefik.http.services.fluxsend-www.loadbalancer.server.port=80"
+  # landing:
+  #   image: bobaklabs/fluxsend-web:main
+  #   ports:
+  #     - "1212:80/tcp"
+  #   networks:
+  #     - proxy
+  #     - backend
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.docker.network=proxy"
+  #     - "traefik.http.routers.fluxsend-www.rule=Host(`www.fluxsend.app`)"
+  #     - "traefik.http.routers.fluxsend-www.entrypoints=websecure"
+  #     - "traefik.http.routers.fluxsend-www.tls=true"
+  #     - "traefik.http.routers.fluxsend-www.tls.certresolver=le"
+  #     - "traefik.http.routers.fluxsend-www.service=fluxsend-www"
+  #     - "traefik.http.services.fluxsend-www.loadbalancer.server.port=80"
 
 networks:
   proxy:
