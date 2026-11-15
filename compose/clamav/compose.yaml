@@ -49,7 +49,7 @@ services:
 
   clamav-exporter-0:
     image: sergeymakinen/clamav_exporter:v2.1.12@sha256:66bc4f313d4c1f3baa73a75cb57a5c55c1095fb8687c6eb6cd66954eed084911
-    container_name: clamav-exporter
+    container_name: clamav-exporter-0
     restart: unless-stopped
 
     command:
