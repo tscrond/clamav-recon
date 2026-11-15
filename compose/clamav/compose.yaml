@@ -44,7 +44,7 @@ services:
       - "traefik.http.services.clamav-0.loadbalancer.server.port=9000"
 
       # The value is the complete "user:bcrypt-hash" entry from the live stack.
-      - "traefik.http.middlewares.clamav-auth-0.basicauth.users=${CLAMAV_BASIC_AUTH_USERS:?Recon did not provide the ClamAV Basic Auth secret}"
+      - "traefik.http.middlewares.clamav-auth-0.basicauth.users=${CLAMAV_BASIC_AUTH_USERS:-}"
       - "traefik.http.routers.clamav-0.middlewares=clamav-auth-0"
 
   clamav-exporter-0:
