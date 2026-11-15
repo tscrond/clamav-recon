@@ -52,6 +52,13 @@ services:
     container_name: clamav-exporter-0
     restart: unless-stopped
 
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:9906/metrics"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
     command:
       - "--clamav.address=tcp://clamav-rest-0:3310"
       - "--clamav.timeout=10s"
