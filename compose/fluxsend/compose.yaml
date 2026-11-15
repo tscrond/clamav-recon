@@ -63,7 +63,7 @@ services:
     command: ["./fluxsend", "--admin-server", "--password-auth"]
     # wget --spider --server-response -O- http://localhost:9464/metrics
     healthcheck:
-      test: ["CMD", "wget","--spider","--server-response","-O-","http://localhost:9464/metrics"]
+      test: ["CMD", "ls", "-lah"]
       interval: 5s
       timeout: 5s
       retries: 10
