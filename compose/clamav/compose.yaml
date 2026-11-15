@@ -19,7 +19,7 @@ services:
       interval: 60s
       timeout: 2s
       retries: 2
-      start_period: 210s
+      start_period: 60s
 
     environment:
       MAX_FILE_SIZE: "3G"

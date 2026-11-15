@@ -20,4 +20,4 @@ stacks:
     health:
       # clamav-rest has a 210s health-check start period and can take another
       # interval to report ready after that. Recon must outlast that cold start.
-      timeout: 6m
+      timeout: 60s
