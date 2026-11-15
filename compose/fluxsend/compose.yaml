@@ -1,0 +1,174 @@
+services:
+  frontend:
+    image: bobaklabs/fluxsend-frontend:v1.8.4
+    container_name: frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_started
+    expose:
+      - "8000"
+    environment:
+      - NGINX_BACKEND_HOST=backend
+      - NGINX_BACKEND_PORT=3000
+      - NGINX_BACKEND_API_PORT=8091
+    healthcheck:
+      test: ["curl", "http://localhost:8000"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - proxy
+      - backend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.fluxsend.rule=Host(`${APP_DOMAIN:-test.fluxsend.app}`)"
+      - "traefik.http.routers.fluxsend.entrypoints=websecure"
+      - "traefik.http.routers.fluxsend.tls=true"
+      - "traefik.http.routers.fluxsend.tls.certresolver=le"
+      - "traefik.http.services.fluxsend.loadbalancer.server.port=8000"
+
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-fluxsend}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-change-me}
+      - POSTGRES_DB=${POSTGRES_DB:-fluxsend}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-fluxsend} -d ${POSTGRES_DB:-fluxsend}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - backend
+
+  backend:
+    image: bobaklabs/fluxsend-backend:test-latest
+    container_name: backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    expose:
+      - "3000"
+      - "8091"
+      - "1414"
+    command: ["./fluxsend", "--admin-server", "--password-auth"]
+    # wget --spider --server-response -O- http://localhost:9464/metrics
+    healthcheck:
+      test: ["wget","--spider","--server-response","-O-","http://localhost:9464/metrics"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    environment:
+      - APP_ENV=production
+      - FRONTEND_ENDPOINT=https://${APP_DOMAIN:-app.example.com}
+      - BACKEND_ENDPOINT=https://${APP_DOMAIN:-app.example.com}
+      - FLUXSEND_LISTEN_PORT=3000
+      - FLUXSEND_API_LISTEN_PORT=8091
+      - FLUXSEND_API_ROUTE_PREFIX=/api
+      # Auth
+      - ENABLE_PASSWORD_AUTH=true
+      - ENABLE_GOOGLE_AUTH=false
+      - ENABLE_GITHUB_AUTH=false
+      - TOKEN_ENCRYPTION_KEY=${TOKEN_ENCRYPTION_KEY:-change-me-openssl-rand-hex-32}
+      # Database
+      - DB_HOST=postgres
+      - POSTGRES_USER=${POSTGRES_USER:-fluxsend}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-change-me}
+      - POSTGRES_DB=${POSTGRES_DB:-fluxsend}
+      # Storage (MinIO)
+      - STORAGE_PROVIDER=minio
+      - MINIO_BUCKET_NAME=${MINIO_BUCKET_NAME:-fluxsend}
+      - MINIO_ENDPOINT=http://minio:9000
+      - MINIO_ACCESS_KEY=${MINIO_ROOT_USER:-fluxsend}
+      - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD:-change-me-minio}
+      - MINIO_USE_SSL=false
+      # Mail (SMTP, port 587 STARTTLS only)
+      - MAIL_FROM=${MAIL_FROM:-noreply@example.com}
+      - MAIL_PROVIDER=standard
+      - SMTP_HOST=${SMTP_HOST:-}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USERNAME=${SMTP_USERNAME:-}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-}
+      - EMAIL_WHITELIST=${EMAIL_WHITELIST:-}
+      - MINIO_PUBLIC_ENDPOINT=${MINIO_PUBLIC_ENDPOINT:-}
+    networks:
+      - backend
+
+  # admin:
+  #   image: bobaklabs/fluxsend-admin
+  #   container_name: admin
+  #   restart: unless-stopped
+  #   ports:
+  #     - "1111:80/tcp"
+  #   networks:
+  #     - backend
+
+  #   environment:
+  #     - UPSTREAM_ADMIN_HOST=backend
+  #     - UPSTREAM_ADMIN_PORT=1414
+
+  minio:
+    image: pgsty/minio:latest
+    container_name: minio
+    restart: unless-stopped
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER:-fluxsend}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-change-me-minio}
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 15s
+      timeout: 20s
+      retries: 5
+    ports:
+      - "9001:9001/tcp"
+      - "9000:9000/tcp"
+    networks:
+      - backend
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.fluxsend-s3.rule=Host(`storage-${APP_DOMAIN:-app.example.com}`) && (Method(`GET`) || Method(`HEAD`) || Method(`OPTIONS`))"
+      - "traefik.http.routers.fluxsend-s3.entrypoints=websecure"
+      - "traefik.http.routers.fluxsend-s3.tls=true"
+      - "traefik.http.routers.fluxsend-s3.tls.certresolver=le"
+      - "traefik.http.routers.fluxsend-s3.service=fluxsend-s3"
+      - "traefik.http.services.fluxsend-s3.loadbalancer.server.port=9000"
+  landing:
+    image: bobaklabs/fluxsend-web:main
+    ports:
+      - "1212:80/tcp"
+    networks:
+      - proxy
+      - backend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.fluxsend-www.rule=Host(`www.fluxsend.app`)"
+      - "traefik.http.routers.fluxsend-www.entrypoints=websecure"
+      - "traefik.http.routers.fluxsend-www.tls=true"
+      - "traefik.http.routers.fluxsend-www.tls.certresolver=le"
+      - "traefik.http.routers.fluxsend-www.service=fluxsend-www"
+      - "traefik.http.services.fluxsend-www.loadbalancer.server.port=80"
+
+networks:
+  proxy:
+    external: true
+  backend:
+    name: fluxsend-backend
+
+volumes:
+  pg_data:
+  minio_data:

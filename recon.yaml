@@ -21,3 +21,10 @@ stacks:
       # clamav-rest has a 210s health-check start period and can take another
       # interval to report ready after that. Recon must outlast that cold start.
       timeout: 60s
+  fluxsend:
+    compose: compose/fluxsend/compose.yaml
+    secrets:
+      env:
+        - secrets/fluxsend.sops.env
+    health:
+      timeout: 60s
