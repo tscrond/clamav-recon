@@ -11,7 +11,15 @@ services:
       - --storage.path=/var/lib/alloy/data
       - /etc/alloy/config.alloy
     healthcheck:
-      test: ["CMD", "ls", "-lah"]
+      test:
+        - CMD
+        - bash
+        - -c
+        - |
+          set -e
+          exec 3<>/dev/tcp/127.0.0.1/12345
+          printf 'GET /-/ready HTTP/1.0\r\n\r\n' >&3
+          grep -q '^HTTP/[0-9.]* 200 ' <&3
       interval: 5s
       timeout: 5s
       retries: 10
