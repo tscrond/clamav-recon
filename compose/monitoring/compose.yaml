@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   alloy:
     image: grafana/alloy:latest
@@ -12,8 +10,18 @@ services:
       - --server.http.listen-addr=0.0.0.0:12345
       - --storage.path=/var/lib/alloy/data
       - /etc/alloy/config.alloy
+    healthcheck:
+      test: ["CMD", "ls", "-lah"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     volumes:
-      - ./config.alloy:/etc/alloy/config.alloy:ro
+      - type: bind
+        source: ./compose/monitoring/config.alloy
+        target: /etc/alloy/config.alloy
+        read_only: true
+        bind:
+          create_host_path: false
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
