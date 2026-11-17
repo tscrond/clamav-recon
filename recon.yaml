@@ -20,6 +20,6 @@ stacks:
     health:
       timeout: 60s
   monitoring:
-    compose: compose/fluxsend/compose.yaml
+    compose: compose/monitoring/compose.yaml
     health:
       timeout: 60s
