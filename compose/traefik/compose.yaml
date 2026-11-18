@@ -16,6 +16,7 @@ services:
       - --certificatesresolvers.le.acme.httpchallenge=true
       - --certificatesresolvers.le.acme.httpchallenge.entrypoint=web
       - --accesslog=true
+      - --ping=true
     ports:
       - "80:80"
       - "443:443"
