@@ -46,6 +46,7 @@ services:
       # The value is the complete "user:bcrypt-hash" entry from the live stack.
       - "traefik.http.middlewares.clamav-auth-0.basicauth.users=${CLAMAV_BASIC_AUTH_USERS:-}"
       - "traefik.http.routers.clamav-0.middlewares=clamav-auth-0"
+      - "monitor_logs=true"
 
   clamav-exporter-0:
     image: sergeymakinen/clamav_exporter:v2.1.12@sha256:66bc4f313d4c1f3baa73a75cb57a5c55c1095fb8687c6eb6cd66954eed084911

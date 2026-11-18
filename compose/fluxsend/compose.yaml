@@ -146,6 +146,7 @@ services:
       - "traefik.http.routers.fluxsend-s3.tls.certresolver=le"
       - "traefik.http.routers.fluxsend-s3.service=fluxsend-s3"
       - "traefik.http.services.fluxsend-s3.loadbalancer.server.port=9000"
+      - "monitor_logs=true"
   # landing:
   #   image: bobaklabs/fluxsend-web:main
   #   ports:
