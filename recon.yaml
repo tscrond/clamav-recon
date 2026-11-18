@@ -23,3 +23,10 @@ stacks:
     compose: compose/monitoring/compose.yaml
     health:
       timeout: 60s
+  traefik:
+    compose: compose/traefik/compose.yaml
+    secrets:
+      env:
+        - secrets/traefik.sops.env
+    health:
+      timeout: 60s
