@@ -1,0 +1,24 @@
+services:
+  ittools:
+    container_name: it_tools
+    restart: unless-stopped
+    image: corentinth/it-tools:latest
+    networks:
+      - proxy
+    ports:
+      - "4390:80/tcp"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.ittools.rule=Host(`ittools.tscrond.com`)"
+      - "traefik.http.routers.ittools.entrypoints=websecure"
+      - "traefik.http.routers.ittools.tls=true"
+      - "traefik.http.routers.ittools.tls.certresolver=le"
+      - "traefik.http.routers.ittools.service=ittools"
+      - "traefik.http.services.ittools.loadbalancer.server.port=80"
+      - "traefik.http.middlewares.ittools-auth.basicauth.users=${ITTOOLS_BASIC_AUTH_USERS:-}"
+      - "traefik.http.routers.ittools.middlewares=ittools-auth"
+
+networks:
+  proxy:
+    external: true

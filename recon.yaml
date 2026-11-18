@@ -30,3 +30,10 @@ stacks:
         - secrets/traefik.sops.env
     health:
       timeout: 60s
+  ittools:
+    compose: compose/ittools/compose.yaml
+    secrets:
+      env:
+        - secrets/ittools.sops.env
+    health:
+      timeout: 60s
