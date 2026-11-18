@@ -3,6 +3,11 @@ services:
     image: traefik:v3
     container_name: traefik
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD","traefik", "healthcheck", "--ping"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
     command:
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
