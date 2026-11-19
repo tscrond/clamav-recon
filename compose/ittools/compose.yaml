@@ -7,6 +7,11 @@ services:
       - proxy
     ports:
       - "4390:80/tcp"
+    healthcheck:
+      test: ["CMD", "ls", "-lah"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=proxy"
