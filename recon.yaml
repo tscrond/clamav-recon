@@ -37,3 +37,7 @@ stacks:
         - secrets/ittools.sops.env
     health:
       timeout: 60s
+  navidrome:
+    compose: compose/navidrome/compose.yaml
+    health:
+      timeout: 60s
